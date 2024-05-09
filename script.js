@@ -1,35 +1,66 @@
 const divEle = document.querySelector(".card-container");
 
-function getData(id) {
-  const req = new XMLHttpRequest();
-  req.open("GET", `https://dummyjson.com/users/${id}`);
-  req.send();
-  req.addEventListener("load", function () {
-    if (req.status === 404) return;
-    const data = JSON.parse(this.responseText);
-    console.log(data);
-    displayUser(data, "beforeend");
-    //next user
-    const req2 = new XMLHttpRequest();
-    req2.open("GET", `https://dummyjson.com/users/${id - 1}`);
-    req2.send();
-    req2.addEventListener("load", function () {
-      if (req2.status === 404) return;
-      const data = JSON.parse(this.responseText);
-      console.log(data);
-      displayUser(data, "afterbegin", "other");
-    });
+// -------------------using XMLHttpRequest-----------------------
+// function getData(id) {
+//   const req = new XMLHttpRequest();
+//   req.open("GET", `https://dummyjson.com/users/${id}`);
+//   req.send();
+//   req.addEventListener("load", function () {
+//     if (req.status === 404) return;
+//     const data = JSON.parse(this.responseText);
+//     console.log(data);
+//     displayUser(data, "beforeend");
+//     //next user
+//     const req2 = new XMLHttpRequest();
+//     req2.open("GET", `https://dummyjson.com/users/${id - 1}`);
+//     req2.send();
+//     req2.addEventListener("load", function () {
+//       if (req2.status === 404) return;
+//       const data = JSON.parse(this.responseText);
+//       console.log(data);
+//       displayUser(data, "afterbegin", "other");
+//     });
 
-    const req3 = new XMLHttpRequest();
-    req3.open("GET", `https://dummyjson.com/users/${id + 1}`);
-    req3.send();
-    req3.addEventListener("load", function () {
-      if (req3.status === 404) return;
-      const data = JSON.parse(this.responseText);
-      console.log(data);
-      displayUser(data, "beforeend", "other");
+//     const req3 = new XMLHttpRequest();
+//     req3.open("GET", `https://dummyjson.com/users/${id + 1}`);
+//     req3.send();
+//     req3.addEventListener("load", function () {
+//       if (req3.status === 404) return;
+//       const data = JSON.parse(this.responseText);
+//       console.log(data);
+//       displayUser(data, "beforeend", "other");
+//     });
+//   });
+// }
+
+// -------------------using Fetch()-----------------------
+function getData(id) {
+  fetch(`https://dummyjson.com/users/${id}`)
+    .then((response) => {
+      afterFetch(response, "beforeEnd");
+      return fetch(`https://dummyjson.com/users/${id - 1}`);
+    })
+    .then((response) => {
+      afterFetch(response, "afterBegin", "other");
+      return fetch(`https://dummyjson.com/users/${id + 1}`);
+    })
+    .then((response) => {
+      afterFetch(response, "beforeEnd", "other");
+    })
+    .catch((err) => {
+      console.error(err);
     });
-  });
+}
+
+function afterFetch(response, pos, className = "") {
+  console.log(response);
+  if (!response.ok) {
+    throw new Error("Id not found");
+  } else {
+    let user = response.json();
+    console.log(user);
+    displayUser(user, pos, className);
+  }
 }
 
 function displayUser(data, pos, className = "") {
