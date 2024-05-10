@@ -56,11 +56,15 @@ function afterFetch(response, pos, className = "") {
   console.log(response);
   if (!response.ok) {
     throw new Error("Id not found");
-  } else {
-    let user = response.json();
-    console.log(user);
-    displayUser(user, pos, className);
   }
+  response
+    .json()
+    .then((data) => {
+      displayUser(data, pos, className);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
 }
 
 function displayUser(data, pos, className = "") {
